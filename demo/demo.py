@@ -1,8 +1,8 @@
 def makeArrays():
-    n = random.choice([12,13,14])
-    m = random.choice([12,13,14])
+    n = random.choice([500,510,520])
+    m = random.choice([500,510,520])
     images = []
-    for i in range(4):
+    for i in range(10):
         images.append(np.random.randint(2, size=(n, m)))
     return images   
 
@@ -41,12 +41,16 @@ if __name__ == "__main__":
             image = sc.rotate(image, 180)
         max_tuple = max(scores, key = lambda x:int(x[0]))
 
-        print ("max score, transform \n", max_tuple)
+        # print ('max score, transform \n', max_tuple)
         totalScores.append(max_tuple)
     
     
-    print ("\nTotal Scores: \n", totalScores)
-    print ("\nMain Image\n", mainImage)
-    #print ("\nClosest Image\n", images[totalScores.index(max(totalScores))])
-    print ("\nClosest Image\n", max(totalScores)[1])
+    # print ('\nTotal Scores: \n', totalScores)
+    print ('\nMain Image\n', mainImage)
+    #print ('\nClosest Image\n', images[totalScores.index(max(totalScores))])
+    max_arr = max(totalScores)[1]    
+    print ('\nClosest Image\n', max_arr)
+    # Save output to textfile (File needs to exist prior to save)
+    np.savetxt('output_main.txt', mainImage, fmt='%2.1i', newline=" ")
+    np.savetxt('output_found.txt', np.asarray(max_arr), fmt='%2.1i', newline=" ")
         
