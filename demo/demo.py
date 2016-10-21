@@ -1,6 +1,6 @@
 def makeArrays():
-    n = random.choice([500,510,520])
-    m = random.choice([500,510,520])
+    n = random.choice([30,30,30])
+    m = random.choice([30,30,30])
     images = []
     for i in range(10):
         images.append(np.random.randint(2, size=(n, m)))
