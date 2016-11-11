@@ -31,26 +31,32 @@ def makeArray(rowSize, colSize, rStart, rEnd, cStart, cEnd):
 		doubleList.append(returnRow(rowSize, -1, -1))
 	
 	arg = np.array(doubleList)
-	print arg
+	#print arg
 	return arg
 	
 delim = "\n#\n"
 file = open("/Users/danielleNash/Desktop/AlgsPics/output.txt", "w")
 
 height = 16
-width = 16
+width = 38
 
-for i in range(15):
-	rStart = random.randint(0, 14)
-	rEnd = random.randint(rStart+2, 16)
-	cStart = random.randint(0, 14)
-	cEnd = random.randint(cStart+2, 16)
+for i in range(35):
+	rStart = random.randint(0, (height-2))
+	rEnd = random.randint(rStart+2, height)
+	cStart = random.randint(0, (width-2))
+	cEnd = random.randint(cStart+2, width)
 	
 	#array1 = makeArray(height, width, rStart, rEnd, cStart, cEnd)
 	#outputFile = 'output_main' + str(i) + ".txt"
-	file.write(str(makeArray(height, width, rStart, rEnd, cStart, cEnd)))
+	#file.write(str(makeArray(height, width, rStart, rEnd, cStart, cEnd)))
+	#file.write(delim)
+	array = makeArray(width, height, rStart, rEnd, cStart, cEnd)
+	for row in range (0, height):
+		 file.write("\n")
+		 for col in range (0, width):
+			  file.write("%1i" %array [row][col])
 	file.write(delim)
-
+			
 	
 
 file.close()
