@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
-data = np.loadtxt("/Users/daniellenash/Desktop/AlgsPics/rectangles/fullRect2.txt")
+data = np.loadtxt("/Users/daniellenash/Desktop/AlgsPics/circles/fullCircle9.txt")
 #blurred = gaussian_filter(data, sigma=7)
 
 #print blurred
