@@ -31,14 +31,12 @@ while i+2 < largeX:
 			for m in range(2):
 				for k in range(2):
 					data[i+m][j+k] = avg
-	
 		else:
 			#print "here"
 			minX.append(i)
 			maxX.append(i+2)
 			minY.append(j)
 			maxY.append(j+2)
-		
 		j+=3
 		avg = 0
 	i+=3

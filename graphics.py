@@ -33,12 +33,12 @@ class ShapeImage(object):
         return coords
 
 shapes = []
-for _ in range(5):
-    side1 = random.randrange(80,120,2)
-    side2 = random.randrange(80,120,2)
+for _ in range(1):
+    side1 = random.randrange(60,100,2)
+    side2 = random.randrange(60,100,2)
     pic = ShapeImage(side1,side2)
-    #pic.drawShape(3)
-    pic.drawShape(4)
+    pic.drawShape(3)
+    #pic.drawShape(4)
     pic.show()
     dataList = list(pic.im.getdata())
     fullArray = []
@@ -46,8 +46,24 @@ for _ in range(5):
     h = pic.h
     for i in range(h):
         fullArray.append(dataList[i*w:(w*(i+1))-1])
+
+
+    print(fullArray)
     data_arr = np.array(fullArray)
     shapes.append(data_arr)
 
+    file = open("/Users/Reede/Desktop/School/Fall '16/Algos/tri9.txt", "w")
+    for row in fullArray:
+        file.write("\n")
+        for item in row:
+            file.write(str(item) + " ")
 
-pickle.dump( shapes, open( "rectangles.algo", "wb" ))
+
+    # for row in range(0, h):
+    #     file.write("\n")
+    #     for col in range(0, w):
+    #         file.write("%1i " % fullArray[row][col])
+
+    file.close()
+
+#pickle.dump( shapes, open( "rectangles.algo", "wb" ))
