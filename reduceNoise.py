@@ -23,11 +23,14 @@ while i+2 < largeX:
 	while j+2 < largeY:
 		avg = data[i][j] + data[i+1][j] + data[i+2][j]+ data[i][j+1]+data[i+1][j+1] + data[i+2][j+1] + data[i][j+2] + data[i+1][j+2] + data[i+2][j+2]
 		print avg
-		if avg <=2:
-			avg = 0
+		if avg <=2 or (avg >=7 and avg <=8):
+			if avg <=2:
+				avg = 0
+			else:
+				avg = 1
 			for m in range(2):
 				for k in range(2):
-					data[i+m][j+k] = 0
+					data[i+m][j+k] = avg
 	
 		else:
 			#print "here"
