@@ -1,5 +1,7 @@
 __author__ = 'Reede'
 
+# req: Python3 w/ PIL
+
 from PIL import Image, ImageDraw
 import random
 import pickle
@@ -34,8 +36,8 @@ class ShapeImage(object):
 
 shapes = []
 for _ in range(1):
-    side1 = random.randrange(60,100,2)
-    side2 = random.randrange(60,100,2)
+    side1 = random.randrange(20,40,2)
+    side2 = random.randrange(20,40,2)
     pic = ShapeImage(side1,side2)
     pic.drawShape(3)
     #pic.drawShape(4)
@@ -57,13 +59,6 @@ for _ in range(1):
         file.write("\n")
         for item in row:
             file.write(str(item) + " ")
-
-
-    # for row in range(0, h):
-    #     file.write("\n")
-    #     for col in range(0, w):
-    #         file.write("%1i " % fullArray[row][col])
-
     file.close()
 
 #pickle.dump( shapes, open( "rectangles.algo", "wb" ))
