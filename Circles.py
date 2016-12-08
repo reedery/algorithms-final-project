@@ -49,13 +49,14 @@ def makeRect():
         map_[rStart][j] = 1
         map_[rEnd][j] = 1
 
-    print map_
+    # print map_
 	"""
     return map_
             
 
 delim = "\n#\n"
-fileStart = "/Users/danielleNash/Desktop/AlgsPics/rectangles/fullRect"
+# fileStart = "/Users/danielleNash/Desktop/AlgsPics/rectangles/fullRect"
+fileStart = "/Users/hoodr/Desktop/algs_data/squares/rect_"
 #file = open("/Users/danielleNash/Desktop/AlgsPics/emptyRect.txt", "w")
 
 for i in range(50):
@@ -64,7 +65,7 @@ for i in range(50):
     fileName = fileStart + str(i) + ".txt"
     file = open(fileName, "w")
     mymap = makeRect()
-    #mymap = makeCircle()
+    # mymap = makeCircle()
     for row in range (0, len(mymap)):
         file.write("\n")
         for col in range (0, len(mymap[0])):
