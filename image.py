@@ -8,12 +8,56 @@ import numpy as np
 
 class Image(object):
     def __init__(self, data): # data is an np.array
-        self.data = data
+        self.data = data # original data matrix
         self.width = len(data[0])
         self.height = len(data)
-        self.bounded = None  # do not call bound until after denoise
-        self.inverted = None  # TODO set this param
-        # self.isPolygon = self.getType()  # false = mnist?
+        self.bounded = None  # matrix after bounding box complete
+        self.inverted = None  # set from denoise function
+        self.foregroundPixels = None # foreground is the MAIN color of the image's central data
+        self.backgroundPixels = None
+        # self.isPolygon = self.getType()  # TODO set from corners method
+
+    def createFeatureVector(self):
+        # TODO: make  feature vector for KNN
+        pass
+
+
+    def findMajorAxis(self):
+        # TODO: see skimage.draw.line docs
+
+        # from skimage.draw import line
+        # img = np.zeros((10, 10), dtype=np.uint8)
+        # rr, cc = line(1, 1, 8, 8)
+        # img[rr, cc] = 1
+        #
+        # *output* ->
+        #
+        # array([    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        #            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        #            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        #            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        #            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+        #            [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        #            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+        #            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        #            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], dtype=uint8)
+
+
+        # propsed method:
+        # make empty arrays with varying lines from opposite edges through center,
+        # do pixel level comparison to each??
+        pass
+
+
+    def getSymmetry(self):
+        # TODO: all of this...
+        # after rotated??
+        # fold image horizontal, fold image vertical
+        # for each fold, count # of same pixels.
+        # if odd H or W, do not let spine affect counts
+        pass
+
 
     def writeOut(self, path, filename, version='full'):
         """"
@@ -25,8 +69,34 @@ class Image(object):
         for row in data:
             file.write("\n")
             for item in row:
-                file.write(str(item) + " ")
+                file.write(str(int(item)) + " ")
         file.close()
+
+    def countNaive(self, data):
+        """"
+        Iterate through all pixels, get counts for 1s and 0s
+        """
+        width, height = len(data[0]), len(data)
+        ones = 0
+        zeros = 0
+        for w in range(width):
+            for h in range(height):
+                if data[w][h] == 1:
+                    ones += 1
+                else:
+                    zeros += 1
+        return ones, zeros
+
+
+    def setCounts(self):
+        # if inverted = False, background is 0
+        d = self.bounded if self.bounded is not None else self.data
+        ones, zeros = self.countNaive(d)
+        if self.inverted:
+            self.backgroundPixels, self.foregroundPixels = ones, zeros
+        else:
+            self.backgroundPixels, self.foregroundPixels = zeros, ones
+
 
     def encodeValues(self, vals):
         """"
@@ -86,19 +156,27 @@ class Image(object):
     def denoise(self):
         # TODO: Parameterize this function for variable window sizes (not just 4)
         """
-        Iterate though each pixel of the image, create a 4x4
+        1) Iterate though each pixel of the image, create a 4x4
         window with this pixel at the top left corner, and
         remove chunks of disconnected noise
+        2) Check for majority of pixel changes to determine if image is
+        white over black or black over white
+
         """
         # make 4x4 chunks, if center is dif from surrounding, make it the same as surrounding.
+        # check inversion (bug prone)
+        countOne, countZero = 0, 0
         for w in range(0, self.width):
             for h in range(0, self.height):
-                final, insides, code = self.checkWindow(w, h, self)
+                final, insides, code = self.checkWindow(w, h)
                 if code != '01':
                     if code == '00':
-                        self.changeValues(self, insides, 0)
+                        countZero += 1
+                        self.changeValues(insides, 0)
                     else:
-                        self.changeValues(self, insides, 1)
+                        countOne += 1
+                        self.changeValues(insides, 1)
+        self.inverted = False if countZero >= countOne else True
 
     # Initiate the search
     def search(self, padding=2, invert=False):
@@ -106,8 +184,8 @@ class Image(object):
         add description
         """
         rows, cols = np.shape(self.data)
-        left_col, top_row = self.start_top(self.data, rows, cols, True)
-        right_col, bot_row = self.start_bot(self.data, rows, cols, True)
+        left_col, top_row = self.start_top(rows, cols, True)
+        right_col, bot_row = self.start_bot(rows, cols, True)
 
         # RESHAPE with the new dims
         r1 = top_row - padding if top_row - padding > 0 else top_row
@@ -207,7 +285,6 @@ class Image(object):
             return True
         else:
             return False
-
             # for x in row:
             #     # TEMP => ADJUST FOR LATER
 
