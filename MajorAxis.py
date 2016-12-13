@@ -1,6 +1,7 @@
 import numpy as np
 import random
-
+import math
+from scipy import ndimage
 #data = np.loadtxt("/Users/daniellenash/Desktop/algorithms-final-project/triangles/tri4.txt")
 
 #x, y  = np.shape(data)
@@ -16,7 +17,7 @@ global sum
 global coord
 global data
 
-data = np.loadtxt("/Users/daniellenash/Desktop/algorithms-final-project/rectangles/fullRect5.txt")
+data = np.loadtxt("/Users/daniellenash/Desktop/algorithms-final-project/triangles/tri2.txt")
 
 #x, y  = np.shape(data)
 
@@ -59,7 +60,7 @@ def majorAxis():
             coord = [(x1, y1), (x2, y2)]
             
     
-    print sum, coord
+    return sum, coord
         
 
 
@@ -106,12 +107,42 @@ def plotLine(x1, x2, y1, y2):
                 
     return currSum
     
-    
-
-    
-    
-
 
 #X, Y = 8, 10
 
-majorAxis()
+sum, coord = majorAxis()
+print sum, coord
+
+
+def findAngle(coord):
+    if coord[1][0] - coord[0][0] == 0:
+        return 90
+    m = (1.0 * (coord[1][1] - coord[0][1])) / (coord[1][0] - coord[0][0])
+    print m
+    return math.degrees(math.atan((0 - m)/(1)))
+
+
+angle = findAngle(coord)
+sinA = math.sin(angle)
+cosA = math.cos(angle)
+negSin = (-1.0 * sinA)
+
+copy = ndimage.interpolation.rotate(data, angle)
+a, b  = np.shape(copy)
+print a, b
+for row in range(len(data)):
+    for col in range(len(data[0])):
+        x1 = row * cosA - col*sinA
+        y1 = row * sinA + col * cosA
+        print x1, y1
+        copy[x1][y1] = data[row][col]
+
+#angle = math.radians(90)
+#newData = ndimage.interpolation.rotate(data, angle)
+#newData = np.rot90(data)
+file = open("/Users/daniellenash/Desktop/AlgsPics/majorAxisFlip.txt", "w")
+
+for row in range (0, len(copy)):
+        file.write("\n")
+        for col in range (0, len(copy[0])):
+            file.write("%1i " % copy[row][col])
