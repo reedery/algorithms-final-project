@@ -15,6 +15,8 @@ class Image(object):
         self.inverted = None  # set from denoise function
         self.foregroundPixels = None # foreground is the MAIN color of the image's central data
         self.backgroundPixels = None
+        self.HorizontalSym = None
+        self.VerticalSym = None
         # self.isPolygon = self.getType()  # TODO set from corners method
 
     def createFeatureVector(self):
@@ -49,14 +51,69 @@ class Image(object):
         # do pixel level comparison to each??
         pass
 
+	def getSymmetry(self):
+        horizontal_Symmetry = xSym(self)
+        vertical_Symmetry = ySym(self)
+        
+        self.HorizontalSym = horizontal_Symmetry
+        self.VerticalSym =vertical_Symmetry 
 
-    def getSymmetry(self):
-        # TODO: all of this...
-        # after rotated??
-        # fold image horizontal, fold image vertical
-        # for each fold, count # of same pixels.
-        # if odd H or W, do not let spine affect counts
-        pass
+    def xSym(self):
+    
+        data = self.bounded
+        h = self.height
+        w = self.width
+        compare = 0
+        
+        if h%2 == 1:
+            row = h/2
+		
+            for r in range(1, h/2):
+                for i in range(w):
+                    if data[row + r][i] == data[row -r][i]:
+                        compare +=1
+					
+					
+        else:
+            r1 = h/2
+            r2 = r1 - 1
+		
+            for row in range(0, h/2):
+				for i in range(w):
+					if data[r1 + row][i] == data[r2 - row][i]:
+						compare +=1
+					
+        return compare
+                    
+	def ySym(self):
+        
+        data = self.bounded
+        h = self.height
+        w = self.width
+	
+        compare = 0
+		
+        if w%2 == 1:
+            #print "Here"
+            col = w/2
+            
+            for R in range(h):
+                for c in range(1, w/2):
+                    if data[R][col + c] == data[R][col -c]:
+                        compare +=1
+					
+					
+        else:
+            c1 = w/2
+            c2 = c1 - 1
+            #print "Here2"
+            for m in range(h):
+                for c in range(0, w/2):
+                    if data[m][c1 + c] == data[m][c2 -c]:
+                        compare +=1
+
+			
+        return compare
 
 
     def writeOut(self, path, filename, version='full'):
