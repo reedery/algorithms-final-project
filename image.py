@@ -61,8 +61,8 @@ class Image(object):
         sum = 0
     
         for i in range(10):
-            top = random.randint(1, Y)
-            right = random.randint(1, X)
+            top = random.randint(3, Y)
+            right = random.randint(3, X)
             
             for i in range(0, 3):
                 thisSum, endCoord= calcDiagonal(self.data, 0, top, 1, 1 - i)
@@ -81,12 +81,18 @@ class Image(object):
 
     def calcDiagonal(self, startX, startY, xStep, yStep):
     
-        x, y = startX, startY   
+        x, y = startX, startY
+        
+        pixel = 0
+        if self.inverted == True:
+            pixel = 1
     
         thisSum = 0
     
         while  -1 < x < X and -1 < y < Y:
-            thisSum +=self.data[x][y]
+            if pixel == self.data[x][y]:
+            	thisSum +=1
+            
             x +=xStep
             y +=yStep
         
@@ -99,7 +105,7 @@ class Image(object):
         if coord[1][0] - coord[0][0] ==0:
             degs = 90
         else:
-            m = (coord[1][1] - coord[0][1]) / (coord[1][0] - coord[0][0])
+            m = (-1.0) ) * (coord[1][1] - coord[0][1]) / (coord[1][0] - coord[0][0])
             degs = math.degrees(math.atan(m))
         
         rotate(self, degs)            
@@ -107,21 +113,21 @@ class Image(object):
     def rotate(self, degrees):
         newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
         self.data = newData
+        self.width = len(newData[0])
+        self.height = len(newData)
 
 	def getSymmetry(self):
         horizontal_Symmetry = xSym(self)
         vertical_Symmetry = ySym(self)
         
-        self.HorizontalSym = horizontal_Symmetry
-        self.VerticalSym =vertical_Symmetry 
+        self.horizSym = horizontal_Symmetry
+        self.vertSym =vertical_Symmetry 
 
     def xSym(self):
-    
-        data = self.bounded
+
+		data = self.bounded
         h = self.height
         w = self.width
-        self.horizSym = self.xSym(w, h, data)
-        self.vertSym = self.ySym(w, h, data)
 
         compare = 0
         if h%2 == 1:
@@ -137,10 +143,15 @@ class Image(object):
                 for i in range(w):
                     if data[r1 + row][i] == data[r2 - row][i]:
                         compare +=1
-        return compare
+        return (2.0* compare) / (h*w)
 
 
-    def ySym(self, w, h, data):
+    def ySym(self):
+    	
+    	data = self.bounded
+        h = self.height
+        w = self.width
+    	
         compare = 0
         if w % 2 == 1:
             col = w/2
@@ -155,7 +166,7 @@ class Image(object):
                 for c in range(0, w/2):
                     if data[m][c1 + c] == data[m][c2 -c]:
                         compare +=1
-        return compare
+        return (2.0* compare) / (h*w)
 
 
     def writeOut(self, path, filename, version='full'):
