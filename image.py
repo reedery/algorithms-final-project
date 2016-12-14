@@ -4,7 +4,7 @@ Image object class for an image w/ methods
 12/08/16
 """
 import numpy as np
-
+from scipy import ndimage
 
 class Image(object):
     def __init__(self, data): # data is an np.array
@@ -23,16 +23,106 @@ class Image(object):
         # make feature vector for KNN
         return [self.width, self.height, self.foregroundPixels, self.backgroundPixels, self.horizSym, self.vertSym]
 
+    def createFeatureVector(self):
+        # TODO: make  feature vector for KNN
+        pass
 
-    def getSymmetry(self):
+
+    def findMajorAxis(self):
+        # TODO: see skimage.draw.line docs
+
+        # from skimage.draw import line
+        # img = np.zeros((10, 10), dtype=np.uint8)
+        # rr, cc = line(1, 1, 8, 8)
+        # img[rr, cc] = 1
+        #
+        # *output* ->
+        #
+        # array([    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        #            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        #            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        #            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        #            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+        #            [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        #            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+        #            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        #            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], dtype=uint8)
+
+
+        # propsed method:
+        # make empty arrays with varying lines from opposite edges through center,
+        # do pixel level comparison to each??
+        pass
+        
+    def createLines(self):
+        thisSum = 0
+        endCoord = (0,0)
+        sum = 0
+    
+        for i in range(10):
+            top = random.randint(1, Y)
+            right = random.randint(1, X)
+            
+            for i in range(0, 3):
+                thisSum, endCoord= calcDiagonal(self.data, 0, top, 1, 1 - i)
+                if thisSum > sum:
+                    sum = thisSum
+                    coord = [(0, top), endCoord]
+            for j in range(0, 3):
+                thisSum, endCoord= calcDiagonal(self.data, right, 0, 1 - j, 1)
+                if thisSum > sum:
+                    sum = thisSum
+                    coord = [(right, 0), endCoord]
+                
+    
+        #print sum, coord
+        
+
+    def calcDiagonal(self, startX, startY, xStep, yStep):
+    
+        x, y = startX, startY   
+    
+        thisSum = 0
+    
+        while  -1 < x < X and -1 < y < Y:
+            thisSum +=self.data[x][y]
+            x +=xStep
+            y +=yStep
+        
+        return thisSum, (x-1, y-1)
+        
+    
+    def degrees(self):
+        degs = 0
+        
+        if coord[1][0] - coord[0][0] ==0:
+            degs = 90
+        else:
+            m = (coord[1][1] - coord[0][1]) / (coord[1][0] - coord[0][0])
+            degs = math.degrees(math.atan(m))
+        
+        rotate(self, degs)            
+
+    def rotate(self, degrees):
+        newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
+        self.data = newData
+
+	def getSymmetry(self):
+        horizontal_Symmetry = xSym(self)
+        vertical_Symmetry = ySym(self)
+        
+        self.HorizontalSym = horizontal_Symmetry
+        self.VerticalSym =vertical_Symmetry 
+
+    def xSym(self):
+    
         data = self.bounded
         h = self.height
         w = self.width
         self.horizSym = self.xSym(w, h, data)
         self.vertSym = self.ySym(w, h, data)
 
-
-    def xSym(self, w, h, data):
         compare = 0
         if h%2 == 1:
             row = h/2
