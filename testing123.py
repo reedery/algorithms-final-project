@@ -4,6 +4,7 @@
 
 from image import Image
 import numpy as np
+import sklearn.neighbors as nei
 import sys, os
 
 # 1) denoise
@@ -15,22 +16,28 @@ import sys, os
 # 8) profit
 
 
-def features(img):
-    main = Image(np.loadtxt(img))
-    print('W: ' + str(main.width) + '\t' + 'H: ' + str(main.height))
-    main.denoise()
-    print('INVERTED: ' + str(main.inverted))
-    main.setCounts()
-    print('ForegroundPX: ' + str(main.foregroundPixels) + '\t' + ' BackgroundPX: ' + str(main.backgroundPixels))
-    # main.search() // bounding box init
-    return ['empty feature array']
+# def featuresTest(img):
+#     main = Image(np.loadtxt(img))
+#     print('W: ' + str(main.width) + '\t' + 'H: ' + str(main.height))
+#     main.denoise()
+#     print('INVERTED: ' + str(main.inverted))
+#     main.setCounts()
+#     print('ForegroundPX: ' + str(main.foregroundPixels) + '\t' + ' BackgroundPX: ' + str(main.backgroundPixels))
+#     # main.search() // bounding box init
+#     return ['empty feature array']
 
-def getNeighbors(img, k, dataset):
-    targetVector = features(img)
-    # cluster()
-    # get neighbors...
-    # ...
-    return ['the knn...']
+
+def getFeatures(imgpath):
+    main = Image(np.loadtxt(img))
+    main.denoise()
+    main.setCounts()
+    main.search()  # bounding box
+    main.getSymmetry()
+    f = main.makeFeatureVector()
+    print('\n' + imgpath)
+    print(f)
+    return f
+
 
 
 # EXAMPLE RUN FORMAT:
@@ -55,6 +62,11 @@ if __name__ == '__main__':
     # database calculations...
     for img in os.listdir(db):
         imgpath = db + '/' + img
-        print(imgpath)
-        database_map[imgpath] = getNeighbors(imgpath, k, db)
-        print('\n')
+        database_map[imgpath] = getFeatures(imgpath)
+
+    query_map = {}
+    for img in os.listdir(query):
+        imgpath = query + '/' + img
+        query_map[imgpath] = getFeatures(img)
+
+    # cluster DB images once, find nearest neighbor foreach in query..

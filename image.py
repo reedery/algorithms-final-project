@@ -15,104 +15,56 @@ class Image(object):
         self.inverted = None  # set from denoise function
         self.foregroundPixels = None # foreground is the MAIN color of the image's central data
         self.backgroundPixels = None
-        self.HorizontalSym = None
-        self.VerticalSym = None
+        self.horizSym = None
+        self.vertSym = None
         # self.isPolygon = self.getType()  # TODO set from corners method
 
-    def createFeatureVector(self):
-        # TODO: make  feature vector for KNN
-        pass
+    def makeFeatureVector(self):
+        # make feature vector for KNN
+        return [self.width, self.height, self.foregroundPixels, self.backgroundPixels, self.horizSym, self.vertSym]
 
 
-    def findMajorAxis(self):
-        # TODO: see skimage.draw.line docs
-
-        # from skimage.draw import line
-        # img = np.zeros((10, 10), dtype=np.uint8)
-        # rr, cc = line(1, 1, 8, 8)
-        # img[rr, cc] = 1
-        #
-        # *output* ->
-        #
-        # array([    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        #            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-        #            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-        #            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        #            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        #            [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-        #            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        #            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-        #            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], dtype=uint8)
-
-
-        # propsed method:
-        # make empty arrays with varying lines from opposite edges through center,
-        # do pixel level comparison to each??
-        pass
-
-	def getSymmetry(self):
-        horizontal_Symmetry = xSym(self)
-        vertical_Symmetry = ySym(self)
-        
-        self.HorizontalSym = horizontal_Symmetry
-        self.VerticalSym =vertical_Symmetry 
-
-    def xSym(self):
-    
+    def getSymmetry(self):
         data = self.bounded
         h = self.height
         w = self.width
+        self.horizSym = self.xSym(w, h, data)
+        self.vertSym = self.ySym(w, h, data)
+
+
+    def xSym(self, w, h, data):
         compare = 0
-        
         if h%2 == 1:
             row = h/2
-		
             for r in range(1, h/2):
                 for i in range(w):
                     if data[row + r][i] == data[row -r][i]:
                         compare +=1
-					
-					
         else:
             r1 = h/2
             r2 = r1 - 1
-		
             for row in range(0, h/2):
-				for i in range(w):
-					if data[r1 + row][i] == data[r2 - row][i]:
-						compare +=1
-					
+                for i in range(w):
+                    if data[r1 + row][i] == data[r2 - row][i]:
+                        compare +=1
         return compare
-                    
-	def ySym(self):
-        
-        data = self.bounded
-        h = self.height
-        w = self.width
-	
+
+
+    def ySym(self, w, h, data):
         compare = 0
-		
-        if w%2 == 1:
-            #print "Here"
+        if w % 2 == 1:
             col = w/2
-            
             for R in range(h):
                 for c in range(1, w/2):
                     if data[R][col + c] == data[R][col -c]:
                         compare +=1
-					
-					
         else:
             c1 = w/2
             c2 = c1 - 1
-            #print "Here2"
             for m in range(h):
                 for c in range(0, w/2):
                     if data[m][c1 + c] == data[m][c2 -c]:
                         compare +=1
-
-			
         return compare
 
 
@@ -128,6 +80,7 @@ class Image(object):
             for item in row:
                 file.write(str(int(item)) + " ")
         file.close()
+
 
     def countNaive(self, data):
         """"
@@ -235,11 +188,13 @@ class Image(object):
                         self.changeValues(insides, 1)
         self.inverted = False if countZero >= countOne else True
 
+
     # Initiate the search
-    def search(self, padding=2, invert=False):
+    def search(self, padding=2):
         """"
         add description
         """
+        invert = self.invert
         rows, cols = np.shape(self.data)
         left_col, top_row = self.start_top(rows, cols, True)
         right_col, bot_row = self.start_bot(rows, cols, True)
