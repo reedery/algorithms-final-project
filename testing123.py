@@ -28,8 +28,8 @@ import sys, os
 
 
 def getFeatures(imgpath):
-    print ('\n' + imgpath)
-    main = Image(np.loadtxt(imgpath))
+    # print ('\n' + imgpath)
+    main = Image(np.loadtxt(imgpath), imgpath)
     main.denoise()
     main.setCounts()
     main.findMajorAxis()
@@ -45,6 +45,9 @@ def getFeatures(imgpath):
 # EXAMPLE RUN FORMAT:
 # Reede$ python testing123.py /Users/Reede/Desktop/test/database /Users/Reede/Desktop/test/queries /Users/Reede/Desktop/test/output 3
 # python /Users/daniellenash/Desktop/algorithms-final-project/testing123/py /Users/daniellenash/Desktop/test/database /Users/daniellenash/Desktop/test/queries /Users/daniellenash/Desktop/test/output 4
+# python testing123.py /Users/hoodr/Desktop/algorithms-final-project/database /Users/hoodr/Desktop/algorithms-final-project/query /Users/hoodr/Desktop/algorithms-final-project/output 1
+# 
+# 
 if __name__ == '__main__':
     """"
     cmd line args:

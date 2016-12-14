@@ -6,9 +6,11 @@ Image object class for an image w/ methods
 import numpy as np
 from scipy import ndimage
 import random
+import pdb
 
 class Image(object):
-    def __init__(self, data): # data is an np.array
+    def __init__(self, data, name): # data is an np.array
+        self.name = name
         self.data = data # original data matrix
         self.width = len(data[0])
         self.height = len(data)
@@ -94,7 +96,9 @@ class Image(object):
 
     def rotate(self, degrees):
         newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
+        #Don't save this actually 
         self.rotated = newData
+        self.data = newData
         #self.width = len(newData[0])
         #self.height = len(newData)
 
@@ -108,8 +112,10 @@ class Image(object):
     def xSym(self):
 
         data = self.bounded
-        h = self.height
-        w = self.width
+        # h = self.height
+        h = len(data)
+        # w = self.width
+        w = len(data[0])
 
         compare = 0
         if h%2 == 1:
@@ -123,6 +129,7 @@ class Image(object):
             r2 = r1 - 1
             for row in range(0, h/2):
                 for i in range(w):
+                    # pdb.set_trace()
                     if data[r1 + row][i] == data[r2 - row][i]:
                         compare +=1
         return (2.0* compare) / (h*w)
@@ -131,8 +138,10 @@ class Image(object):
     def ySym(self):
     	
     	data = self.bounded
-        h = self.height
-        w = self.width
+        # h = self.height
+        h = len(data)
+        # w = self.width
+        w = len(data[0])
     	
         compare = 0
         if w % 2 == 1:
@@ -174,7 +183,7 @@ class Image(object):
         zeros = 0
         for w in range(width):
             for h in range(height):
-                if data[w][h] == 1:
+                if data[h][w] == 1:
                     ones += 1
                 else:
                     zeros += 1
@@ -279,8 +288,8 @@ class Image(object):
         """
         invert = self.inverted
         rows, cols = np.shape(self.data)
-        left_col, top_row = self.start_top(rows, cols, True)
-        right_col, bot_row = self.start_bot(rows, cols, True)
+        left_col, top_row = self.start_top(rows, cols, invert)
+        right_col, bot_row = self.start_bot(rows, cols, invert)
 
         # RESHAPE with the new dims
         r1 = top_row - padding if top_row - padding > 0 else top_row
@@ -305,7 +314,8 @@ class Image(object):
         # return new_image
         # pdb.set_trace()
         self.bounded = self.data[row_idx[:, None], col_idx]
-
+        temp = "output/out_" + self.name[-8:]
+        np.savetxt(temp, self.bounded, fmt='%d')
         """
         row_idx = np.array([0, 1, 3])
         col_idx = np.array([0, 2])
@@ -371,18 +381,17 @@ class Image(object):
         fg = 1
         if invert:
             fg = 0
-
         row = self.data[i, :]
         # SEARCHES SOLELY FOR 1 ans the "other"
         found = np.argwhere(row == fg)
         # print 'found: ', found
-        if len(set(found.flatten())) > 1:
+        # Threshold of "found" is just one pixel, can be adjusted
+        if len(set(found.flatten())) >= 1:
             return True
         else:
             return False
             # for x in row:
             #     # TEMP => ADJUST FOR LATER
-
             #     if x == 1:
             #         return
             # return
@@ -398,7 +407,8 @@ class Image(object):
         # SEARCHES SOLELY FOR 1 ans the "other"
         found = np.argwhere(col == fg)
         # print 'found: ', found
-        if len(set(found.flatten())) > 1:
+        # Threshold of "found" is just one pixel, can be adjusted
+        if len(set(found.flatten())) >= 1:
             return True
         else:
             return False
