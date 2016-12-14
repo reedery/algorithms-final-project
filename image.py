@@ -5,6 +5,7 @@ Image object class for an image w/ methods
 """
 import numpy as np
 from scipy import ndimage
+import random
 
 class Image(object):
     def __init__(self, data): # data is an np.array
@@ -12,6 +13,7 @@ class Image(object):
         self.width = len(data[0])
         self.height = len(data)
         self.bounded = None  # matrix after bounding box complete
+        self.rotated = None
         self.inverted = None  # set from denoise function
         self.foregroundPixels = None # foreground is the MAIN color of the image's central data
         self.backgroundPixels = None
@@ -27,35 +29,8 @@ class Image(object):
         # TODO: make  feature vector for KNN
         pass
 
-
-    def findMajorAxis(self):
-        # TODO: see skimage.draw.line docs
-
-        # from skimage.draw import line
-        # img = np.zeros((10, 10), dtype=np.uint8)
-        # rr, cc = line(1, 1, 8, 8)
-        # img[rr, cc] = 1
-        #
-        # *output* ->
-        #
-        # array([    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        #            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-        #            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-        #            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        #            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        #            [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-        #            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        #            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-        #            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], dtype=uint8)
-
-
-        # propsed method:
-        # make empty arrays with varying lines from opposite edges through center,
-        # do pixel level comparison to each??
-        pass
-        
     def createLines(self):
+        X, Y = self.height, self.width
         thisSum = 0
         endCoord = (0,0)
         sum = 0
@@ -65,22 +40,29 @@ class Image(object):
             right = random.randint(3, X)
             
             for i in range(0, 3):
-                thisSum, endCoord= calcDiagonal(self.data, 0, top, 1, 1 - i)
+                thisSum, endCoord= self.calcDiagonal(0, top, 1, 1 - i)
                 if thisSum > sum:
                     sum = thisSum
                     coord = [(0, top), endCoord]
             for j in range(0, 3):
-                thisSum, endCoord= calcDiagonal(self.data, right, 0, 1 - j, 1)
+                thisSum, endCoord= self.calcDiagonal(right, 0, 1 - j, 1)
                 if thisSum > sum:
                     sum = thisSum
                     coord = [(right, 0), endCoord]
                 
     
         #print sum, coord
+
+
+    def findMajorAxis(self):
+        """
+        	Finds major axis then rotates the image
+        """
+        self.createLines()
         
 
     def calcDiagonal(self, startX, startY, xStep, yStep):
-    
+    	X, Y = self.height, self.width
         x, y = startX, startY
         
         pixel = 0
@@ -105,27 +87,27 @@ class Image(object):
         if coord[1][0] - coord[0][0] ==0:
             degs = 90
         else:
-            m = (-1.0) ) * (coord[1][1] - coord[0][1]) / (coord[1][0] - coord[0][0])
+            m = (-1.0) * (coord[1][1] - coord[0][1]) / (coord[1][0] - coord[0][0])
             degs = math.degrees(math.atan(m))
         
-        rotate(self, degs)            
+        self.rotate(degs)            
 
     def rotate(self, degrees):
         newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
-        self.data = newData
-        self.width = len(newData[0])
-        self.height = len(newData)
+        self.rotated = newData
+        #self.width = len(newData[0])
+        #self.height = len(newData)
 
-	def getSymmetry(self):
-        horizontal_Symmetry = xSym(self)
-        vertical_Symmetry = ySym(self)
+    def getSymmetry(self):
+        hSymmetry = self.xSym()
+        vSymmetry = self.ySym()
         
-        self.horizSym = horizontal_Symmetry
-        self.vertSym =vertical_Symmetry 
+        self.horizSym = hSymmetry
+        self.vertSym =vSymmetry 
 
     def xSym(self):
 
-		data = self.bounded
+        data = self.bounded
         h = self.height
         w = self.width
 
@@ -295,7 +277,7 @@ class Image(object):
         """"
         add description
         """
-        invert = self.invert
+        invert = self.inverted
         rows, cols = np.shape(self.data)
         left_col, top_row = self.start_top(rows, cols, True)
         right_col, bot_row = self.start_bot(rows, cols, True)
