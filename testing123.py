@@ -4,7 +4,7 @@
 
 from image import Image
 import numpy as np
-import sklearn.neighbors as nei
+#import sklearn.neighbors as nei
 import sys, os
 
 # 1) denoise
@@ -28,9 +28,11 @@ import sys, os
 
 
 def getFeatures(imgpath):
-    main = Image(np.loadtxt(img))
+    print ('\n' + imgpath)
+    main = Image(np.loadtxt(imgpath))
     main.denoise()
     main.setCounts()
+    main.findMajorAxis()
     main.search()  # bounding box
     main.getSymmetry()
     f = main.makeFeatureVector()
@@ -42,7 +44,7 @@ def getFeatures(imgpath):
 
 # EXAMPLE RUN FORMAT:
 # Reede$ python testing123.py /Users/Reede/Desktop/test/database /Users/Reede/Desktop/test/queries /Users/Reede/Desktop/test/output 3
-
+# python /Users/daniellenash/Desktop/algorithms-final-project/testing123/py /Users/daniellenash/Desktop/test/database /Users/daniellenash/Desktop/test/queries /Users/daniellenash/Desktop/test/output 4
 if __name__ == '__main__':
     """"
     cmd line args:
@@ -67,6 +69,6 @@ if __name__ == '__main__':
     query_map = {}
     for img in os.listdir(query):
         imgpath = query + '/' + img
-        query_map[imgpath] = getFeatures(img)
+        query_map[imgpath] = getFeatures(imgpath)
 
     # cluster DB images once, find nearest neighbor foreach in query..
