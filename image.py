@@ -113,6 +113,8 @@ class Image(object):
     def rotate(self, degrees):
         newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
         self.data = newData
+        self.width = len(newData[0])
+        self.height = len(newData)
 
 	def getSymmetry(self):
         horizontal_Symmetry = xSym(self)
