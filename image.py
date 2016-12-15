@@ -27,7 +27,7 @@ class Image(object):
 
     def makeFeatureVector(self):
         # make feature vector for KNN
-        return [self.width, self.height, self.foregroundPixels, self.backgroundPixels, self.horizSym, self.vertSym]
+        return (self.corners, self.horizSym, self.vertSym, (1.0 * self.foregroundPixels) / (self.foregroundPixels + self.backgroundPixels))
 
 
 
@@ -204,6 +204,9 @@ class Image(object):
         return lst
 
 
+    def getCorners(self):
+    	self.findCorners(self.data, 4, 0.05, 1)
+    
     def findCorners(self, arry, window_size, k, thresh):
         height = len(arry)
         width = len(arry[0])
@@ -245,7 +248,7 @@ class Image(object):
                     cornerList.append([y, x, r])
                     cornerList = self.combineList(cornerList)
                     newCount += 1
-        self.corners = cornerList
+        self.corners = len(cornerList)
 
 
 
@@ -405,6 +408,9 @@ class Image(object):
         # pdb.set_trace()
         self.bounded = self.data[row_idx[:, None], col_idx]
         temp = "output/out_" + self.name[-8:]
+        self.data = self.bounded
+        self.height = len(self.data)
+        self.width  = len(self.data[0])
         #np.savetxt(temp, self.bounded, fmt='%d')
         """
         row_idx = np.array([0, 1, 3])
