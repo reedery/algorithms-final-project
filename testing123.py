@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
 # top file test environment
-from scipy import spatial
+# from scipy import spatial
 from image import Image
 import numpy as np
-#import sklearn.neighbors as nei
 import sys, os
+from kd_tree_scipy import KDTree
+import pdb
+import time
 
 # 1) denoise
 # 2) pixel counts
@@ -38,8 +40,9 @@ def getFeatures(imgpath):
     f = main.makeFeatureVector()
     #paths.append(paths)
     #vectors.append(np.ravel(f))
-    print('\n' + imgpath)
-    print(f)
+    
+    # print('\n' + imgpath)
+    # print(f)
     return f  
 
 # EXAMPLE RUN FORMAT:
@@ -57,6 +60,7 @@ if __name__ == '__main__':
         3: path to output file
         4: k
     """
+    t0 = time.clock()
     cmdline_args = sys.argv
     db = cmdline_args[1]
     query = cmdline_args[2]
@@ -64,8 +68,9 @@ if __name__ == '__main__':
     k = cmdline_args[4]
     
     imgPaths = []
-    vectors = []
-    firstVect = []
+    imgPath_db = []
+    query_vectors = []
+    db_vectors = []
 
     database_map = {}
     f = []
@@ -74,23 +79,22 @@ if __name__ == '__main__':
         imgpath = db + '/' + img
         f = getFeatures(imgpath)
         database_map[imgpath] = f
-        firstVect = f
-        print len(f)
+        imgPath_db.append(imgpath)
+        db_vectors.append(f)
+        # print len(f)
 
 
     query_map = {}
     q = []
-    counter = 0 
     for img in os.listdir(query):
         imgpath = query + '/' + img
         q = getFeatures(imgpath)
         database_map[imgpath] = q
         imgPaths.append(imgpath)
-        vectors.append(q)
+        query_vectors.append(q)
         #for i in range(len(q)):
             #vectors.append(q[i])
-        print len(q)
-        counter+=1
+        # print len(q)
         #vectors.append(q)
 
     # cluster DB images once, find nearest neighbor foreach in query..
@@ -98,14 +102,15 @@ if __name__ == '__main__':
     #data = zip(new)
     #print len(data)
     #print len(vectors)
-    tree = spatial.KDTree(vectors)
-    print type(tree)
-    distance, ind = tree.query(firstVect, int(k))
-    
-    for i in ind:
-        print imgPaths[i]
-    
-    print distance, ind
-    
-    
-    
+    # tree = spatial.KDTree(vectors)
+    tree = KDTree(db_vectors)
+    for v in range(len(query_vectors) - 1):
+        print 'Query Image: {}'.format(imgPaths[v])
+        print 'Query vector: {} \n'.format(query_vectors[v])
+        distance, ind = tree.query(query_vectors[v], int(k))    
+        for i in ind:
+            print 'Neighbor: {}'.format(imgPath_db[i])
+            print 'Neighbor vector: {}'.format(db_vectors[i])
+        print distance, ind
+        print '\n'
+    print time.clock() - t0
