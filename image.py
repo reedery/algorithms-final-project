@@ -7,6 +7,7 @@ import numpy as np
 from scipy import ndimage
 import random
 import pdb
+import math
 
 class Image(object):
     def __init__(self, data, name): # data is an np.array
@@ -53,7 +54,9 @@ class Image(object):
                 if thisSum > sum:
                     sum = thisSum
                     coord = [(right, 0), endCoord]
-                
+        
+        self.degrees(coord)
+        #print sum, coord
 
 
     def findMajorAxis(self):
@@ -89,7 +92,7 @@ class Image(object):
         return thisSum, (x-1, y-1)
         
     
-    def degrees(self):
+    def degrees(self, coord):
         """
             Figures out the degrees between the major axis and the y axis to rotate
         """
@@ -111,8 +114,8 @@ class Image(object):
         #Don't save this actually 
         self.rotated = newData
         self.data = newData
-        #self.width = len(newData[0])
-        #self.height = len(newData)
+        self.width = len(newData[0])
+        self.height = len(newData)
 
     def getSymmetry(self):
         """
