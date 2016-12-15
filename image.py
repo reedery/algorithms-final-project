@@ -31,6 +31,9 @@ class Image(object):
 
 
     def createLines(self):
+        """
+            Creates 3 lines for 20 random pixels on the edges to see which is the best fit line
+        """
         X, Y = self.height, self.width
         thisSum = 0
         endCoord = (0,0)
@@ -61,7 +64,13 @@ class Image(object):
         
 
     def calcDiagonal(self, startX, startY, xStep, yStep):
+
+        """
+            Calculates how many pixels are actually in the shape down this particular line
+        """
+   
         X, Y = self.height, self.width
+
         x, y = startX, startY
         
         pixel = 0
@@ -81,6 +90,9 @@ class Image(object):
         
     
     def degrees(self):
+        """
+            Figures out the degrees between the major axis and the y axis to rotate
+        """
         degs = 0
         
         if coord[1][0] - coord[0][0] ==0:
@@ -92,6 +104,9 @@ class Image(object):
         self.rotate(degs)            
 
     def rotate(self, degrees):
+        """
+            Rotates the shape degrees and saves as new shape
+        """
         newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
         #Don't save this actually 
         self.rotated = newData
@@ -100,6 +115,9 @@ class Image(object):
         #self.height = len(newData)
 
     def getSymmetry(self):
+        """
+           Finds the horizontal and vertical symmetries
+        """
         hSymmetry = self.xSym()
         vSymmetry = self.ySym()
         
@@ -384,7 +402,7 @@ class Image(object):
         # pdb.set_trace()
         self.bounded = self.data[row_idx[:, None], col_idx]
         temp = "output/out_" + self.name[-8:]
-        np.savetxt(temp, self.bounded, fmt='%d')
+        #np.savetxt(temp, self.bounded, fmt='%d')
         """
         row_idx = np.array([0, 1, 3])
         col_idx = np.array([0, 2])
