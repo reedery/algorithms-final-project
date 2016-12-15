@@ -21,15 +21,14 @@ class Image(object):
         self.backgroundPixels = None
         self.horizSym = None
         self.vertSym = None
+        self.corners = None
         # self.isPolygon = self.getType()  # TODO set from corners method
 
     def makeFeatureVector(self):
         # make feature vector for KNN
         return [self.width, self.height, self.foregroundPixels, self.backgroundPixels, self.horizSym, self.vertSym]
 
-    def createFeatureVector(self):
-        # TODO: make  feature vector for KNN
-        pass
+
 
     def createLines(self):
         X, Y = self.height, self.width
@@ -52,19 +51,17 @@ class Image(object):
                     sum = thisSum
                     coord = [(right, 0), endCoord]
                 
-    
-        #print sum, coord
 
 
     def findMajorAxis(self):
         """
-        	Finds major axis then rotates the image
+        Finds major axis then rotates the image
         """
         self.createLines()
         
 
     def calcDiagonal(self, startX, startY, xStep, yStep):
-    	X, Y = self.height, self.width
+        X, Y = self.height, self.width
         x, y = startX, startY
         
         pixel = 0
@@ -75,7 +72,7 @@ class Image(object):
     
         while  -1 < x < X and -1 < y < Y:
             if pixel == self.data[x][y]:
-            	thisSum +=1
+                thisSum += 1
             
             x +=xStep
             y +=yStep
@@ -136,13 +133,11 @@ class Image(object):
 
 
     def ySym(self):
-    	
-    	data = self.bounded
+        data = self.bounded
         # h = self.height
         h = len(data)
         # w = self.width
         w = len(data[0])
-    	
         compare = 0
         if w % 2 == 1:
             col = w/2
@@ -158,6 +153,80 @@ class Image(object):
                     if data[m][c1 + c] == data[m][c2 -c]:
                         compare +=1
         return (2.0* compare) / (h*w)
+
+
+    def combineList(self, lst):
+        if len(lst) < 2:
+            return lst
+        comp = lst.pop()
+        last = lst.pop()
+        going = 1
+        while going >= 1:
+            if abs(comp[0] - last[0]) < 4 or abs(comp[1] - last[1]) < 4:
+                if comp[2] > last[2]:
+                    if len(lst) > 1:
+                        last = lst.pop()
+                    else:
+                        lst.append(comp)
+                        going = 0
+                else:
+                    if len(lst) > 1:
+                        comp = last
+                        last = lst.pop()
+                    else:
+                        lst.append(last)
+                        going = 0
+            else:
+                lst.append(last)
+                lst.append(comp)
+                going = 0
+        return lst
+
+
+    def findCorners(self, arry, window_size, k, thresh):
+        height = len(arry)
+        width = len(arry[0])
+
+        dy, dx = np.gradient(arry)
+        Ixx = dx ** 2
+        Ixy = dy * dx
+        Iyy = dy ** 2
+
+        cornerList = []
+
+        offset = window_size / 2
+        count = 0
+        last = []
+        count1 = 0
+        going = 1
+
+        newCount = 0
+        goingCount = 0
+
+        for y in range(offset, height - offset):
+            for x in range(offset, width - offset):
+
+                windowIxx = Ixx[y - offset:y + offset + 1, x - offset:x + offset + 1]
+                windowIxy = Ixy[y - offset:y + offset + 1, x - offset:x + offset + 1]
+                windowIyy = Iyy[y - offset:y + offset + 1, x - offset:x + offset + 1]
+                Sxx = windowIxx.sum()
+                Sxy = windowIxy.sum()
+                Syy = windowIyy.sum()
+
+                # Find determinant and trace, use to get corner response
+                det = (Sxx * Syy) - (Sxy ** 2)
+                trace = Sxx + Syy
+                r = det - k * (trace ** 2)
+
+                # If corner response is over threshold, color the point and add to corner list
+                if r > thresh:
+                    # print x, y, r
+                    cornerList.append([y, x, r])
+                    cornerList = self.combineList(cornerList)
+                    newCount += 1
+        self.corners = cornerList
+
+
 
 
     def writeOut(self, path, filename, version='full'):
