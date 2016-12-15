@@ -34,6 +34,7 @@ def getFeatures(imgpath):
     main.search()  # bounding box
     main.setCounts()
     main.getSymmetry()
+    main.getCorners()
     f = main.makeFeatureVector()
     #paths.append(paths)
     #vectors.append(np.ravel(f))
