@@ -8,9 +8,9 @@ import sys, os
 import kdtree
 
 
-def getFeatures(imgpath):
+def getFeatures(imgpath, img):
     # print ('\n' + imgpath)
-    main = Image(np.loadtxt(imgpath), imgpath)
+    main = Image(np.loadtxt(imgpath), set(img))
     main.denoise()
     main.findMajorAxis()
     main.search()  # bounding box
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     # database calculations...
     for img in os.listdir(db):
         imgpath = db + '/' + img
-        f = getFeatures(imgpath)
+        f = getFeatures(imgpath, img)
         database_map[imgpath] = f
         firstVect = f
         print
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     counter = 0
     for img in os.listdir(query):
         imgpath = query + '/' + img
-        q = getFeatures(imgpath)
+        q = getFeatures(imgpath, img)
         database_map[imgpath] = q
         imgPaths.append(imgpath)
         vectors.append(q)

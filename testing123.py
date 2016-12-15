@@ -7,28 +7,10 @@ import numpy as np
 #import sklearn.neighbors as nei
 import sys, os
 
-# 1) denoise
-# 2) pixel counts
-# 3) bounding box
-# 5) find main axis, rotate -> np.roll() ?
-# 6) num of corners, determine if polygon or digit
-# 7) ???
-# 8) profit
 
 
-# def featuresTest(img):
-#     main = Image(np.loadtxt(img))
-#     print('W: ' + str(main.width) + '\t' + 'H: ' + str(main.height))
-#     main.denoise()
-#     print('INVERTED: ' + str(main.inverted))
-#     main.setCounts()
-#     print('ForegroundPX: ' + str(main.foregroundPixels) + '\t' + ' BackgroundPX: ' + str(main.backgroundPixels))
-#     # main.search() // bounding box init
-#     return ['empty feature array']
-
-def getFeatures(imgpath):
-    # print ('\n' + imgpath)
-    main = Image(np.loadtxt(imgpath), imgpath)
+def getFeatures(imgpath, img):
+    main = Image(np.loadtxt(imgpath), set(img))
     main.denoise()
     main.findMajorAxis()
     main.search()  # bounding box
@@ -46,8 +28,9 @@ def getFeatures(imgpath):
 # Reede$ python testing123.py /Users/Reede/Desktop/test/database /Users/Reede/Desktop/test/queries /Users/Reede/Desktop/test/output 3
 # python /Users/daniellenash/Desktop/algorithms-final-project/testing123/py /Users/daniellenash/Desktop/test/database /Users/daniellenash/Desktop/test/queries /Users/daniellenash/Desktop/test/output 4
 # python testing123.py /Users/hoodr/Desktop/algorithms-final-project/database /Users/hoodr/Desktop/algorithms-final-project/query /Users/hoodr/Desktop/algorithms-final-project/output 1
-# 
-# 
+
+
+
 if __name__ == '__main__':
     """"
     cmd line args:
@@ -72,7 +55,7 @@ if __name__ == '__main__':
     # database calculations...
     for img in os.listdir(db):
         imgpath = db + '/' + img
-        f = getFeatures(imgpath)
+        f = getFeatures(imgpath, img)
         database_map[imgpath] = f
         firstVect = f
         print len(f)
@@ -83,7 +66,7 @@ if __name__ == '__main__':
     counter = 0 
     for img in os.listdir(query):
         imgpath = query + '/' + img
-        q = getFeatures(imgpath)
+        q = getFeatures(imgpath, img)
         database_map[imgpath] = q
         imgPaths.append(imgpath)
         vectors.append(q)
