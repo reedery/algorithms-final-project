@@ -74,8 +74,8 @@ if __name__ == '__main__':
         imgpath = db + '/' + img
         f = getFeatures(imgpath)
         database_map[imgpath] = f
-        firstVect = f
-        print len(f)
+        firstVect.append(f)
+        #print len(f)
 
 
     query_map = {}
@@ -89,8 +89,8 @@ if __name__ == '__main__':
         vectors.append(q)
         #for i in range(len(q)):
             #vectors.append(q[i])
-        print len(q)
-        counter+=1
+        #print len(q)
+        #counter+=1
         #vectors.append(q)
 
     # cluster DB images once, find nearest neighbor foreach in query..
@@ -99,13 +99,17 @@ if __name__ == '__main__':
     #print len(data)
     #print len(vectors)
     tree = spatial.KDTree(vectors)
-    print type(tree)
-    distance, ind = tree.query(firstVect, int(k))
+    #print type(tree)
     
-    for i in ind:
-        print imgPaths[i]
+    for v in firstVect:
+        distance, ind = tree.query(v, int(k))
+        print 
+        print v
+        
+        for i in ind:
+            print imgPaths[i]
     
-    print distance, ind
+    #print distance, ind
     
     
     

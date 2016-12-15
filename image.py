@@ -15,8 +15,6 @@ class Image(object):
         self.data = data # original data matrix
         self.width = len(data[0])
         self.height = len(data)
-        self.bounded = None  # matrix after bounding box complete
-        self.rotated = None
         self.inverted = None  # set from denoise function
         self.foregroundPixels = None # foreground is the MAIN color of the image's central data
         self.backgroundPixels = None
@@ -112,7 +110,7 @@ class Image(object):
         """
         newData = ndimage.interpolation.rotate(self.data, degrees, axes= (0, 1), reshape = True, order = 0)
         #Don't save this actually 
-        self.rotated = newData
+        #self.rotated = newData
         self.data = newData
         self.width = len(newData[0])
         self.height = len(newData)
@@ -129,11 +127,11 @@ class Image(object):
 
     def xSym(self):
 
-        data = self.bounded
+        data = self.data
         # h = self.height
-        h = len(data)
+        h = self.height
         # w = self.width
-        w = len(data[0])
+        w = self.width
 
         compare = 0
         if h%2 == 1:
@@ -154,11 +152,13 @@ class Image(object):
 
 
     def ySym(self):
-        data = self.bounded
+        
+        data = self.data
         # h = self.height
-        h = len(data)
+        h = self.height
         # w = self.width
-        w = len(data[0])
+        w = self.width
+        
         compare = 0
         if w % 2 == 1:
             col = w/2
@@ -259,7 +259,8 @@ class Image(object):
         version can either be 'full' or 'bounded'
         """
         file = open(path + '/' + filename + '.txt', "w")
-        data = self.data if version == 'full' else self.bounded
+        #data = self.data if version == 'full' else self.bounded
+        data = self.data
         for row in data:
             file.write("\n")
             for item in row:
@@ -285,7 +286,8 @@ class Image(object):
 
     def setCounts(self):
         # if inverted = False, background is 0
-        d = self.bounded if self.bounded is not None else self.data
+        #d = self.bounded if self.bounded is not None else self.data
+        d = self.data
         ones, zeros = self.countNaive(d)
         if self.inverted:
             self.backgroundPixels, self.foregroundPixels = ones, zeros
@@ -406,9 +408,9 @@ class Image(object):
         # pdb.set_trace()
         # return new_image
         # pdb.set_trace()
-        self.bounded = self.data[row_idx[:, None], col_idx]
+        bounded = self.data[row_idx[:, None], col_idx]
         temp = "output/out_" + self.name[-8:]
-        self.data = self.bounded
+        self.data = bounded
         self.height = len(self.data)
         self.width  = len(self.data[0])
         #np.savetxt(temp, self.bounded, fmt='%d')
