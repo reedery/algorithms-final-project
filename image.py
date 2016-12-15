@@ -330,7 +330,7 @@ class Image(object):
         # pdb.set_trace()
         self.bounded = self.data[row_idx[:, None], col_idx]
         temp = "output/out_" + self.name[-8:]
-        np.savetxt(temp, self.bounded, fmt='%d')
+        #np.savetxt(temp, self.bounded, fmt='%d')
         """
         row_idx = np.array([0, 1, 3])
         col_idx = np.array([0, 2])

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # top file test environment
-
+from scipy import spatial
 from image import Image
 import numpy as np
 #import sklearn.neighbors as nei
@@ -26,21 +26,20 @@ import sys, os
 #     # main.search() // bounding box init
 #     return ['empty feature array']
 
-
 def getFeatures(imgpath):
     # print ('\n' + imgpath)
     main = Image(np.loadtxt(imgpath), imgpath)
     main.denoise()
-    main.setCounts()
     main.findMajorAxis()
     main.search()  # bounding box
+    main.setCounts()
     main.getSymmetry()
     f = main.makeFeatureVector()
+    #paths.append(paths)
+    #vectors.append(np.ravel(f))
     print('\n' + imgpath)
     print(f)
-    return f
-
-
+    return f  
 
 # EXAMPLE RUN FORMAT:
 # Reede$ python testing123.py /Users/Reede/Desktop/test/database /Users/Reede/Desktop/test/queries /Users/Reede/Desktop/test/output 3
@@ -62,16 +61,50 @@ if __name__ == '__main__':
     query = cmdline_args[2]
     output_path = cmdline_args[3]
     k = cmdline_args[4]
+    
+    imgPaths = []
+    vectors = []
+    firstVect = []
 
     database_map = {}
+    f = []
     # database calculations...
     for img in os.listdir(db):
         imgpath = db + '/' + img
-        database_map[imgpath] = getFeatures(imgpath)
+        f = getFeatures(imgpath)
+        database_map[imgpath] = f
+        firstVect = f
+        print len(f)
+
 
     query_map = {}
+    q = []
+    counter = 0 
     for img in os.listdir(query):
         imgpath = query + '/' + img
-        query_map[imgpath] = getFeatures(imgpath)
+        q = getFeatures(imgpath)
+        database_map[imgpath] = q
+        imgPaths.append(imgpath)
+        vectors.append(q)
+        #for i in range(len(q)):
+            #vectors.append(q[i])
+        print len(q)
+        counter+=1
+        #vectors.append(q)
 
     # cluster DB images once, find nearest neighbor foreach in query..
+    
+    #data = zip(new)
+    #print len(data)
+    #print len(vectors)
+    tree = spatial.KDTree(vectors)
+    print type(tree)
+    distance, ind = tree.query(firstVect, int(k))
+    
+    for i in ind:
+        print imgPaths[i]
+    
+    print distance, ind
+    
+    
+    
