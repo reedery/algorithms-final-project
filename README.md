@@ -1,5 +1,6 @@
 # Algorithms (final project)
 
+# migrated here https://github.com/hoodr/Algorithms_final_project
 Project description:
 You have to develop an algorithm that given a query image finds the “closest” entries to it on a dataset of images.
 
